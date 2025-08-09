@@ -41,8 +41,11 @@ def check_for_appointment():
         book_appointment_button = wait.until(
             EC.element_to_be_clickable((By.NAME, 'g-select-termin'))
         )
-        book_appointment_button.click()
-        print("Clicked 'Termin buchen' button.")
+        
+        # --- THIS IS THE UPDATED PART ---
+        # Instead of a standard click, we use a JavaScript click, which is more robust.
+        print("Clicking 'Termin buchen' button using JavaScript...")
+        driver.execute_script("arguments[0].click();", book_appointment_button)
         
         print("Waiting for calendar page to load...")
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'calendar-table')))
@@ -55,14 +58,12 @@ def check_for_appointment():
             return True
 
     except TimeoutException:
-        # --- THIS IS THE NEW, DETAILED LOGGING PART ---
         print("\n---")
         print("Timeout: The calendar page did not load. Here's what the script saw instead:")
         try:
             page_title = driver.title
             body_text = driver.find_element(By.TAG_NAME, 'body').text
             print(f"  Page Title: '{page_title}'")
-            # Print the first 600 characters of the page text
             print(f"  Page Preview:\n---\n{body_text[:600]}...\n---")
         except Exception as e:
             print(f"  Could not retrieve page details. Error: {e}")
