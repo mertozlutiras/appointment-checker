@@ -9,16 +9,13 @@ from selenium.webdriver.support import expected_conditions as EC
 
 # --- Configuration ---
 URL = "https://service.berlin.de/dienstleistung/351180/"
-# Define the known text phrases for the two failure pages
 FAILURE_TEXT_1 = "keine Termine für Ihre Auswahl verfügbar"
 FAILURE_TEXT_2 = "Zu Ihrer Suche konnten keine Daten ermittelt werden"
 
 def setup_driver():
     """Sets up the Chrome browser."""
     options = webdriver.ChromeOptions()
-    # To run on GitHub, this MUST be enabled.
     options.add_argument('--headless')
-    
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36')
@@ -56,7 +53,9 @@ def check_for_appointment():
         print("Checking result page for known failure patterns...")
         page_text = driver.find_element(By.TAG_NAME, 'body').text.lower()
         
-        if FAILURE_TEXT_1 in page_text or FAILURE_TEXT_2 in page_text:
+        # --- THIS IS THE CORRECTED LINE ---
+        # We must compare the lowercase page_text to the lowercase failure texts.
+        if FAILURE_TEXT_1.lower() in page_text or FAILURE_TEXT_2.lower() in page_text:
             print("Result: A known 'no appointment' or error page was found.")
             return False
         else:
@@ -72,8 +71,6 @@ def check_for_appointment():
 
 # --- Main script logic ---
 if __name__ == "__main__":
-    # --- THIS IS THE CORRECTED LINE ---
-    # Rewritten to avoid the f-string syntax error.
     print("[" + time.strftime('%Y-%m-%d %H:%M:%S') + "] Starting appointment check...")
     
     is_available = check_for_appointment()
