@@ -56,7 +56,6 @@ def check_for_appointment():
         print("Checking result page for known failure patterns...")
         page_text = driver.find_element(By.TAG_NAME, 'body').text.lower()
         
-        # Check for the two failure conditions.
         if FAILURE_TEXT_1 in page_text or FAILURE_TEXT_2 in page_text:
             print("Result: A known 'no appointment' or error page was found.")
             return False
@@ -73,7 +72,9 @@ def check_for_appointment():
 
 # --- Main script logic ---
 if __name__ == "__main__":
-    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')] Starting appointment check...")
+    # --- THIS IS THE CORRECTED LINE ---
+    # Rewritten to avoid the f-string syntax error.
+    print("[" + time.strftime('%Y-%m-%d %H:%M:%S') + "] Starting appointment check...")
     
     is_available = check_for_appointment()
     
