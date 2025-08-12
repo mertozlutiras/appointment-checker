@@ -6,7 +6,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 # --- Configuration ---
 URL = "https://service.berlin.de/dienstleistung/351180/"
@@ -17,9 +16,9 @@ FAILURE_TEXT_2 = "Zu Ihrer Suche konnten keine Daten ermittelt werden"
 def setup_driver():
     """Sets up the Chrome browser."""
     options = webdriver.ChromeOptions()
-    # To run on GitHub, this MUST be enabled. To test locally, comment it out.
-    
+    # To run on GitHub, this MUST be enabled.
     options.add_argument('--headless')
+    
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36')
@@ -55,31 +54,32 @@ def check_for_appointment():
         print("Page successfully transitioned.")
 
         print("Checking result page for known failure patterns...")
-        # --- THIS IS THE KEY CHANGE ---
-        # Get all text and convert it to lower case for case-insensitive matching.
         page_text = driver.find_element(By.TAG_NAME, 'body').text.lower()
         
-        # Check if either lowercase failure phrase exists in the lowercase text.
-        if FAILURE_TEXT_1.lower() in page_text or FAILURE_TEXT_2.lower() in page_text:
+        # Check for the two failure conditions.
+        if FAILURE_TEXT_1 in page_text or FAILURE_TEXT_2 in page_text:
             print("Result: A known 'no appointment' or error page was found.")
             return False
         else:
-            print("Result: Page does not match known failure patterns. APPOINTMENT FOUND!")
-            page_title = driver.title
-            print(f"  Success Page Title: '{page_title}'")
+            print("Result: Page does not match known failure patterns. POTENTIAL APPOINTMENT FOUND!")
+            print(f"  Success Page Title: '{driver.title}'")
             return True
 
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print(f"An unexpected error occurred during Browse: {e}")
         return False
     finally:
         driver.quit()
 
 # --- Main script logic ---
 if __name__ == "__main__":
-    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Running appointment check...")
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')] Starting appointment check...")
     
     is_available = check_for_appointment()
     
-    if is_available:
-        print
+    if is_available is True:
+        print("NOTIFICATION TRIGGER: An appointment was found. Forcing script to 'fail'.")
+        sys.exit(1)
+    else:
+        print("NOTIFICATION NORMAL: No appointment found. Script will exit cleanly.")
+        sys.exit(0)
